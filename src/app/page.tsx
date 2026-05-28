@@ -1,65 +1,166 @@
+import Link from "next/link";
 import Image from "next/image";
+import { PageShell } from "@/components/page-shell";
+import { gymConfig } from "@/config/gym-config";
+import { facilityHighlights, placeholderImages, stats } from "@/config/site-content";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <PageShell>
+      <section className="premium-grid-bg mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
+        <div>
+          <p className="mb-5 inline-flex rounded-full border border-white/15 px-4 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">
+            Premium Fitness Experience
           </p>
+          <h1 className="text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">
+            {gymConfig.tagline}
+          </h1>
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+            {gymConfig.description}
+          </p>
+          <blockquote className="mt-6 max-w-lg border-l-2 border-cyan-300/70 pl-4 text-sm italic text-slate-300">
+            &ldquo;A premium gym is not just equipment, it is clarity, accountability, and transformation
+            built into every session.&rdquo;
+          </blockquote>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              href="/plans"
+              className="rounded-full bg-cyan-400 px-7 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+            >
+              Join Now
+            </Link>
+            <Link
+              href="/plans"
+              className="rounded-full border border-white/20 px-7 py-3 text-sm font-semibold transition hover:border-white/40 hover:bg-white/5"
+            >
+              View Plans
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {stats.map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-2xl font-bold text-cyan-300">{item.value}</p>
+                <p className="mt-1 text-xs text-slate-300">{item.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {facilityHighlights.map((label) => (
+            <div
+              key={label}
+              className="premium-card float-slow min-h-40 rounded-3xl p-5"
+            >
+              <p className="text-sm text-slate-300">Elite Training</p>
+              <p className="mt-2 text-xl font-semibold">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-16">
+        <div className="premium-card overflow-hidden rounded-3xl">
+          <Image
+            src={placeholderImages.hero}
+            alt="Sample premium gym visual"
+            width={1600}
+            height={1000}
+            className="h-auto w-full object-cover"
+          />
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-slate-900/60">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <h2 className="text-3xl font-semibold">Why This Template Converts Better</h2>
+          <p className="mt-3 max-w-3xl text-slate-300">
+            Built for trust-first sales calls, this website combines premium design language with clear
+            conversion paths and reusable content blocks.
+          </p>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            {[
+              { title: "01", text: "Premium visual hierarchy for instant credibility." },
+              { title: "02", text: "Mobile-first CTA placement to capture local leads." },
+              { title: "03", text: "White-label ready sections to clone for new gyms." },
+            ].map((item) => (
+              <article key={item.title} className="premium-card rounded-3xl p-6">
+                <p className="text-sm font-semibold text-cyan-300">{item.title}</p>
+                <p className="mt-3 text-sm text-slate-200">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <h2 className="text-3xl font-semibold">Premium Programs At A Glance</h2>
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          <article className="premium-card overflow-hidden rounded-3xl">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src={placeholderImages.secondary}
+              alt="Program showcase visual"
+              width={1400}
+              height={900}
+              className="h-auto w-full object-cover"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </article>
+          <div className="space-y-4">
+            {[
+              "Strength conditioning with measurable progress",
+              "Lifestyle fat-loss programs with coaching support",
+              "Premium personal training modules",
+              "Community-led challenge and transformation cycles",
+            ].map((item) => (
+              <article key={item} className="premium-card rounded-2xl p-5">
+                <p className="text-sm text-slate-200">{item}</p>
+              </article>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-slate-900/60">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <h2 className="text-3xl font-semibold">Member Journey Snapshot</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            {[
+              "Enquire or chat via WhatsApp",
+              "Choose plan and begin onboarding",
+              "Renew online and stay consistent",
+            ].map((item) => (
+              <article key={item} className="premium-card rounded-3xl p-6">
+                <p className="text-sm text-slate-200">{item}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="glow-pulse rounded-3xl border border-cyan-300/40 bg-cyan-400/10 p-8 text-center">
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-900">Quote</p>
+          <h2 className="mt-3 text-2xl font-semibold text-slate-950">
+            &ldquo;The strongest brands sell confidence before they sell memberships.&rdquo;
+          </h2>
+          <p className="mt-3 text-slate-800">
+            This template is designed to create that confidence in less than 10 seconds.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link
+              href="/plans"
+              className="rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-cyan-300 transition hover:bg-slate-900"
+            >
+              Explore Plans
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded-full border border-slate-700 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-100"
+            >
+              Contact Gym
+            </Link>
+          </div>
+        </div>
+      </section>
+    </PageShell>
   );
 }
