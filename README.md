@@ -27,8 +27,8 @@ White-label SaaS-style gym website and management system. Built to sell to local
 | 6 | Database schema — membership tables | ✅ Done |
 | 6 | Database schema — payments, invoices, notifications | ✅ Done (migration `004`) |
 | 3 | Member dashboard (status, expiry, plan details, profile) | ✅ Done |
-| 5 | Razorpay (buy & renew online) | ⏳ Next |
-| 4 | Admin dashboard (members, offline onboarding, reminders, invoices) | ⏳ Pending |
+| 5 | Razorpay (buy & renew online) | ✅ Done |
+| 4 | Admin dashboard (members, offline onboarding, reminders, invoices) | ⏳ Next |
 | 7 | Email automation (renewal reminders) | ⏳ Pending |
 | 8 | White-label polish (DB settings + config) | ⏳ Partial (`gym-config.ts` ready) |
 | 9 | Per-client deployment checklist | ⏳ Pending |
@@ -83,7 +83,8 @@ supabase/migrations/
 | Route | Purpose |
 |-------|---------|
 | `/member/membership` | Active plan, expiry, history, payments |
-| `/member/renew` | Plan selection (Razorpay in Phase 5) |
+| `/member/renew` | Plan selection + Razorpay checkout |
+| `/member/payment/success` | Post-payment confirmation |
 | `/member/invoices` | Invoice history + print |
 | `/member/notifications` | Reminders and announcements |
 | `/member/profile` | Update name and phone |
@@ -111,10 +112,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Phase 5 — Razorpay (add when integrating payments)
-RAZORPAY_KEY_ID=
-RAZORPAY_KEY_SECRET=
+# Phase 5 — Razorpay (required for online payments)
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_key_secret
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_your_key_id
 ```
+
+Test card: `4111 1111 1111 1111` (any expiry, any CVV).
 
 ---
 
@@ -161,9 +165,8 @@ SUPABASE_SETUP.md   # ← Database setup & schema reference (keep updated)
 
 ## What's next (development)
 
-1. **Phase 5** — Razorpay checkout on `/member/renew` (buy + renew)
-2. Build admin dashboard for member management and offline onboarding
-3. Email automation for renewal reminders
+1. **Phase 4** — admin dashboard (members, offline onboarding, reminders)
+2. Email automation for renewal reminders
 
 ---
 

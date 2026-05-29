@@ -14,7 +14,7 @@ Complete database and auth setup for each gym client. **One Supabase project per
 | Phase 6 — Core membership tables | ✅ Done | `membership_plans`, `memberships` exist in Supabase |
 | Phase 6 — Payments & invoices | ✅ Done | Migration `004` verified in Supabase |
 | Phase 3 — Member dashboard wired to DB | ✅ Done | Membership, invoices, notifications, profile |
-| Phase 5 — Razorpay | ⏳ Pending | Needs `payments` table |
+| Phase 5 — Razorpay | ✅ Done | Buy/renew on `/member/renew` |
 
 ---
 
@@ -421,10 +421,40 @@ npm run dev
 
 ---
 
+## Step 9: Razorpay (Phase 5)
+
+Add to `.env.local` and **Vercel → Environment Variables**:
+
+```bash
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_key_secret
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_your_key_id
+```
+
+> Use **test keys** (`rzp_test_...`) until you go live. Never commit secrets to GitHub.
+
+### Test payment flow
+
+1. Login as a **member** (not owner)
+2. Go to `/member/renew`
+3. Click **Pay Online** on any plan
+4. In Razorpay popup, use test card: `4111 1111 1111 1111`
+5. Any future expiry, any CVV, complete OTP
+6. Redirects to `/member/payment/success`
+7. Check `/member/membership`, `/member/invoices` for updated data
+
+### API routes
+
+| Route | Purpose |
+|-------|---------|
+| `POST /api/payments/create-order` | Creates Razorpay order + pending payment row |
+| `POST /api/payments/verify` | Verifies signature, activates membership, creates invoice |
+
+---
+
 ## What's next
 
-1. **Phase 5** — Razorpay buy/renew flow (wire `/member/renew` checkout)
-2. **Phase 4** — admin dashboard (members, offline onboarding, reminders)
-3. **Phase 7** — email automation (expiry/renewal emails)
+1. **Phase 4** — admin dashboard (members, offline onboarding, reminders)
+2. **Phase 7** — email automation (expiry/renewal emails)
 
 Update this file after each migration is created and run.

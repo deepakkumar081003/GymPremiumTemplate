@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { createClient } from "@/lib/supabase/client";
 import { formatINR } from "@/lib/membership-utils";
+import { loadRazorpayScript } from "@/lib/razorpay-checkout";
 import type { MembershipPlan } from "@/lib/types/database";
 
 export default function MemberRenewPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [payingPlanId, setPayingPlanId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -30,6 +35,95 @@ export default function MemberRenewPage() {
     load();
   }, [user]);
 
+  const handlePay = async (plan: MembershipPlan) => {
+    setError(null);
+    setPayingPlanId(plan.id);
+
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded || !window.Razorpay) {
+      setError("Failed to load Razorpay checkout. Please refresh and try again.");
+      setPayingPlanId(null);
+      return;
+    }
+
+    const publicKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    if (!publicKey) {
+      setError("Razorpay is not configured. Add NEXT_PUBLIC_RAZORPAY_KEY_ID to environment variables.");
+      setPayingPlanId(null);
+      return;
+    }
+
+    try {
+      const orderRes = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: plan.id }),
+      });
+
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        throw new Error(orderData.error ?? "Failed to create order");
+      }
+
+      const rzp = new window.Razorpay({
+        key: publicKey,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: orderData.gymName,
+        description: orderData.planName,
+        order_id: orderData.orderId,
+        prefill: orderData.prefill,
+        theme: { color: "#22d3ee" },
+        modal: {
+          ondismiss: () => {
+            setPayingPlanId(null);
+          },
+        },
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch("/api/payments/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                paymentId: orderData.paymentId,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              throw new Error(verifyData.error ?? "Payment verification failed");
+            }
+
+            router.push(
+              `/member/payment/success?plan=${encodeURIComponent(verifyData.planName)}`,
+            );
+          } catch (verifyError) {
+            setError(
+              verifyError instanceof Error
+                ? verifyError.message
+                : "Payment verification failed",
+            );
+          } finally {
+            setPayingPlanId(null);
+          }
+        },
+      });
+
+      rzp.on("payment.failed", (response) => {
+        setError(response.error?.description ?? "Payment failed. Please try again.");
+        setPayingPlanId(null);
+      });
+
+      rzp.open();
+    } catch (payError) {
+      setError(payError instanceof Error ? payError.message : "Unable to start checkout");
+      setPayingPlanId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -46,10 +140,15 @@ export default function MemberRenewPage() {
         <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">Renew or Upgrade</p>
         <h1 className="mt-2 text-3xl font-bold">Choose a Plan</h1>
         <p className="mt-2 max-w-2xl text-slate-400">
-          Select a membership plan to purchase or renew. Online checkout with Razorpay is coming in
-          the next phase — for now, review plans here or contact the gym.
+          Pay securely with Razorpay. Test mode uses test cards — no real money is charged.
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-2xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">
+          {error}
+        </div>
+      )}
 
       {plans.length === 0 ? (
         <div className="premium-card rounded-3xl p-8 text-center">
@@ -61,10 +160,7 @@ export default function MemberRenewPage() {
       ) : (
         <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan) => (
-            <article
-              key={plan.id}
-              className="premium-card flex flex-col rounded-3xl p-6"
-            >
+            <article key={plan.id} className="premium-card flex flex-col rounded-3xl p-6">
               <p className="text-sm text-slate-400">{plan.duration_days} days</p>
               <h2 className="mt-2 text-xl font-semibold">{plan.name}</h2>
               <p className="mt-2 text-3xl font-bold text-cyan-300">
@@ -81,11 +177,11 @@ export default function MemberRenewPage() {
                 </ul>
               )}
               <button
-                disabled
-                className="mt-6 w-full cursor-not-allowed rounded-full bg-white/10 px-4 py-3 text-sm font-semibold text-slate-400"
-                title="Razorpay checkout — Phase 5"
+                onClick={() => handlePay(plan)}
+                disabled={payingPlanId !== null}
+                className="mt-6 w-full rounded-full bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Pay Online — Coming Soon
+                {payingPlanId === plan.id ? "Opening checkout..." : "Pay Online"}
               </button>
             </article>
           ))}
@@ -93,11 +189,11 @@ export default function MemberRenewPage() {
       )}
 
       <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/5 p-5 text-sm text-cyan-100">
-        Need help renewing? Visit the{" "}
-        <Link href="/contact" className="font-semibold underline">
-          contact page
-        </Link>{" "}
-        or speak with the front desk for offline renewal.
+        <p className="font-semibold">Razorpay test mode</p>
+        <p className="mt-2 text-cyan-200/90">
+          Use test card <span className="font-mono">4111 1111 1111 1111</span>, any future expiry,
+          any CVV, and complete the OTP step in the Razorpay popup.
+        </p>
       </div>
     </div>
   );
