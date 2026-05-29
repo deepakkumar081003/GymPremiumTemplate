@@ -1,3 +1,4 @@
+import { SocialIconLink } from "@/components/social-icon";
 import { gymConfig } from "@/config/gym-config";
 
 export function SiteFooter() {
@@ -33,16 +34,20 @@ export function SiteFooter() {
             </div>
           </div>
           <div className="text-sm text-slate-300">
-            <p className="mb-2 font-medium text-slate-100">Social Links</p>
-            <a href={gymConfig.socialLinks.instagram} target="_blank" rel="noreferrer" className="block transition hover:text-cyan-300">
-              Instagram
-            </a>
-            <a href={gymConfig.socialLinks.facebook} target="_blank" rel="noreferrer" className="mt-1 block transition hover:text-cyan-300">
-              Facebook
-            </a>
-            <a href={gymConfig.socialLinks.youtube} target="_blank" rel="noreferrer" className="mt-1 block transition hover:text-cyan-300">
-              YouTube
-            </a>
+            <p className="mb-3 font-medium text-slate-100">Follow Us</p>
+            <div className="flex flex-wrap gap-3">
+              <SocialIconLink
+                href={gymConfig.socialLinks.instagram}
+                platform="instagram"
+                label="Instagram"
+              />
+              <SocialIconLink
+                href={gymConfig.socialLinks.facebook}
+                platform="facebook"
+                label="Facebook"
+              />
+              <SocialIconLink href={gymConfig.socialLinks.youtube} platform="youtube" label="YouTube" />
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-start justify-between gap-2 pt-5 text-sm text-slate-400 md:flex-row md:items-center">
