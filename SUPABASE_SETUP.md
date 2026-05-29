@@ -452,9 +452,33 @@ NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_your_key_id
 
 ---
 
+## Step 10: Admin portal (Phase 4)
+
+Login as **owner** (`role = 'owner'` in `public.users`).
+
+| Route | Purpose |
+|-------|---------|
+| `/admin` | Overview — members, revenue, expiring soon |
+| `/admin/members` | Member list, offline onboarding, renewal reminders |
+| `/admin/memberships` | Edit plans and pricing |
+| `/admin/payments` | Payments and invoices |
+| `/admin/announcements` | Send in-app notifications |
+| `/admin/analytics` | 6-month signup and revenue charts |
+
+Admin API routes use **service role** server-side after verifying the logged-in user is `owner`.
+
+### Offline onboarding
+
+1. Go to `/admin/members` → **Offline Onboard**
+2. Enter email, name, phone, select plan
+3. If email exists → membership activated/extended
+4. If new email → Supabase invite email sent + membership created
+
+---
+
 ## What's next
 
-1. **Phase 4** — admin dashboard (members, offline onboarding, reminders)
-2. **Phase 7** — email automation (expiry/renewal emails)
+1. **Phase 7** — email automation (expiry/renewal emails via Resend or similar)
+2. Per-client deployment checklist
 
 Update this file after each migration is created and run.

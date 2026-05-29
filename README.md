@@ -28,7 +28,7 @@ White-label SaaS-style gym website and management system. Built to sell to local
 | 6 | Database schema — payments, invoices, notifications | ✅ Done (migration `004`) |
 | 3 | Member dashboard (status, expiry, plan details, profile) | ✅ Done |
 | 5 | Razorpay (buy & renew online) | ✅ Done |
-| 4 | Admin dashboard (members, offline onboarding, reminders, invoices) | ⏳ Next |
+| 4 | Admin dashboard (members, offline onboarding, reminders, invoices) | ✅ Done |
 | 7 | Email automation (renewal reminders) | ⏳ Pending |
 | 8 | White-label polish (DB settings + config) | ⏳ Partial (`gym-config.ts` ready) |
 | 9 | Per-client deployment checklist | ⏳ Pending |
@@ -88,6 +88,17 @@ supabase/migrations/
 | `/member/invoices` | Invoice history + print |
 | `/member/notifications` | Reminders and announcements |
 | `/member/profile` | Update name and phone |
+
+### Admin portal routes (Phase 4)
+
+| Route | Purpose |
+|-------|---------|
+| `/admin` | Overview stats, expiring members |
+| `/admin/members` | Search, filter, offline onboard, send reminders |
+| `/admin/memberships` | Edit plan pricing and details |
+| `/admin/payments` | All payments and invoices |
+| `/admin/announcements` | Broadcast in-app notifications |
+| `/admin/analytics` | Signup and revenue charts |
 
 ---
 
@@ -165,8 +176,8 @@ SUPABASE_SETUP.md   # ← Database setup & schema reference (keep updated)
 
 ## What's next (development)
 
-1. **Phase 4** — admin dashboard (members, offline onboarding, reminders)
-2. Email automation for renewal reminders
+1. **Phase 7** — email automation for renewal reminders
+2. Per-client deployment checklist polish
 
 ---
 

@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/protected-route";
 import { MemberDashboardSummary } from "@/components/member/member-dashboard-summary";
-import Link from "next/link";
+import { AdminDashboardSummary } from "@/components/admin/admin-dashboard-summary";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -54,59 +54,7 @@ export default function DashboardPage() {
 
           {/* Role-based content */}
           {userRole === "owner" ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <Link
-                href="/admin/members"
-                className="premium-card rounded-3xl p-6 hover:bg-white/10 transition group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-400/20 flex items-center justify-center mb-4 group-hover:bg-cyan-400/30 transition">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.657" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold">Manage Members</h3>
-                <p className="mt-2 text-sm text-slate-400">View and manage gym members</p>
-              </Link>
-
-              <Link
-                href="/admin/memberships"
-                className="premium-card rounded-3xl p-6 hover:bg-white/10 transition group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-400/20 flex items-center justify-center mb-4 group-hover:bg-cyan-400/30 transition">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold">Memberships</h3>
-                <p className="mt-2 text-sm text-slate-400">Manage membership plans and pricing</p>
-              </Link>
-
-              <Link
-                href="/admin/payments"
-                className="premium-card rounded-3xl p-6 hover:bg-white/10 transition group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-400/20 flex items-center justify-center mb-4 group-hover:bg-cyan-400/30 transition">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h10m4 0a1 1 0 11-2 0m2 0a1 1 0 11-2 0m2 0a1 1 0 11-2 0m2 0a1 1 0 11-2 0" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold">Payments</h3>
-                <p className="mt-2 text-sm text-slate-400">Track payments and transactions</p>
-              </Link>
-
-              <Link
-                href="/admin/analytics"
-                className="premium-card rounded-3xl p-6 hover:bg-white/10 transition group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-400/20 flex items-center justify-center mb-4 group-hover:bg-cyan-400/30 transition">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold">Analytics</h3>
-                <p className="mt-2 text-sm text-slate-400">View gym statistics and insights</p>
-              </Link>
-            </div>
+            <AdminDashboardSummary />
           ) : (
             <MemberDashboardSummary />
           )}
