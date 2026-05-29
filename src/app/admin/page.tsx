@@ -60,7 +60,7 @@ export default function AdminOverviewPage() {
       <section className="premium-card rounded-3xl p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Expiring Soon</h2>
-          <Link href="/admin/members?filter=expiring" className="text-sm text-cyan-300 hover:underline">
+          <Link href="/admin/members?filter=expiring_7" className="text-sm text-cyan-300 hover:underline">
             View all
           </Link>
         </div>

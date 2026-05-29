@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "THULI GYM | Premium Fitness",
-  description: "Premium gym landing website template built for white-label scaling.",
+  description: "Premium fitness, expert coaching, and structured membership plans.",
 };
 
 export default function RootLayout({

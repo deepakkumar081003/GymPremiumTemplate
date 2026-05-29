@@ -21,6 +21,15 @@ export type Testimonial = {
   result: string;
 };
 
+export type GymLocation = {
+  /** Replace with your gym coordinates for the map pin */
+  latitude: number;
+  longitude: number;
+  zoom?: number;
+  /** Short label shown under the map */
+  mapLabel: string;
+};
+
 export type GymBrandingConfig = {
   gymName: string;
   tagline: string;
@@ -29,6 +38,7 @@ export type GymBrandingConfig = {
   contactEmail: string;
   phone: string;
   address: string;
+  location: GymLocation;
   businessHours: string[];
   socialLinks: {
     instagram: string;
@@ -49,6 +59,12 @@ export const gymConfig: GymBrandingConfig = {
   contactEmail: "hello@thuligym.com",
   phone: "+91 99999 99999",
   address: "24 Fit Avenue, Chennai, Tamil Nadu, India",
+  location: {
+    latitude: 13.0827,
+    longitude: 80.2707,
+    zoom: 14,
+    mapLabel: "Chennai, Tamil Nadu",
+  },
   businessHours: [
     "Mon - Fri: 5:30 AM to 10:30 PM",
     "Sat: 6:00 AM to 9:00 PM",

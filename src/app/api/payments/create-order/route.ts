@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { amountToPaise, getRazorpayClient } from "@/lib/razorpay";
 import { getActiveMembership } from "@/lib/membership-utils";
+import {
+  formatPhoneForStorage,
+  isValidIndianMobile,
+  PHONE_VALIDATION_MESSAGE,
+} from "@/lib/validation/phone";
 import type { Membership } from "@/lib/types/database";
 
 export async function POST(request: Request) {
@@ -41,6 +46,12 @@ export async function POST(request: Request) {
       .select("name, email, phone")
       .eq("id", user.id)
       .maybeSingle();
+
+    if (!isValidIndianMobile(profile?.phone)) {
+      return NextResponse.json({ error: PHONE_VALIDATION_MESSAGE }, { status: 400 });
+    }
+
+    const contactPhone = formatPhoneForStorage(profile!.phone!);
 
     const { data: gymSettings } = await admin
       .from("gym_settings")
@@ -99,7 +110,7 @@ export async function POST(request: Request) {
       prefill: {
         name: profile?.name ?? user.email?.split("@")[0] ?? "Member",
         email: profile?.email ?? user.email,
-        contact: profile?.phone ?? "",
+        contact: contactPhone,
       },
     });
   } catch (error) {

@@ -1,10 +1,24 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PageShell } from "@/components/page-shell";
 import { PlansGrid } from "@/components/plans/plans-grid";
+import { MembershipComparison } from "@/components/plans/membership-comparison";
+import { ImageSlideshow } from "@/components/image-slideshow";
+import { CtaSection } from "@/components/cta-section";
+import { FeatureIconGrid } from "@/components/marketing/feature-icon-grid";
+import { JourneyTimeline } from "@/components/marketing/journey-timeline";
+import { ProgramHighlights } from "@/components/marketing/program-highlights";
+import { SectionHeading } from "@/components/marketing/section-heading";
 import { gymConfig } from "@/config/gym-config";
 import { getPublicPlans } from "@/lib/plans/fetch-public-plans";
-import { facilityHighlights, placeholderImages, stats } from "@/config/site-content";
+import {
+  facilityHighlights,
+  homeProgramImage,
+  homeSlideshowImages,
+  memberJourneySteps,
+  programHighlights,
+  stats,
+  whyChooseUs,
+} from "@/config/site-content";
 
 export const revalidate = 60;
 
@@ -51,93 +65,51 @@ export default async function Home() {
             ))}
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {facilityHighlights.map((label) => (
-            <div
-              key={label}
-              className="premium-card float-slow min-h-40 rounded-3xl p-5"
-            >
-              <p className="text-sm text-slate-300">Elite Training</p>
-              <p className="mt-2 text-xl font-semibold">{label}</p>
-            </div>
-          ))}
-        </div>
+        <FeatureIconGrid items={facilityHighlights} variant="hero" />
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-16">
-        <div className="premium-card overflow-hidden rounded-3xl">
-          <Image
-            src={placeholderImages.hero}
-            alt="Sample premium gym visual"
-            width={1600}
-            height={1000}
-            className="h-auto w-full object-cover"
-          />
-        </div>
+        <ImageSlideshow
+          images={homeSlideshowImages}
+          title="Inside THULI GYM"
+          subtitle="Premium equipment, expert coaching, and a high-performance training environment."
+          autoPlayInterval={5000}
+        />
       </section>
 
       <section className="border-y border-white/10 bg-slate-900/60">
         <div className="mx-auto max-w-7xl px-6 py-16">
-          <h2 className="text-3xl font-semibold">Why This Template Converts Better</h2>
-          <p className="mt-3 max-w-3xl text-slate-300">
-            Built for trust-first sales calls, this website combines premium design language with clear
-            conversion paths and reusable content blocks.
-          </p>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {[
-              { title: "01", text: "Premium visual hierarchy for instant credibility." },
-              { title: "02", text: "Mobile-first CTA placement to capture local leads." },
-              { title: "03", text: "White-label ready sections to clone for new gyms." },
-            ].map((item) => (
-              <article key={item.title} className="premium-card rounded-3xl p-6">
-                <p className="text-sm font-semibold text-cyan-300">{item.title}</p>
-                <p className="mt-3 text-sm text-slate-200">{item.text}</p>
-              </article>
-            ))}
+          <SectionHeading
+            eyebrow="Why Choose Us"
+            title="Built For Members Who Take Training Seriously"
+            description="Expert coaching, structured programs, and a premium environment designed to help you stay consistent."
+          />
+          <div className="mt-8">
+            <FeatureIconGrid items={whyChooseUs} columns={3} />
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-16">
-        <h2 className="text-3xl font-semibold">Premium Programs At A Glance</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          <article className="premium-card overflow-hidden rounded-3xl">
-            <Image
-              src={placeholderImages.secondary}
-              alt="Program showcase visual"
-              width={1400}
-              height={900}
-              className="h-auto w-full object-cover"
-            />
-          </article>
-          <div className="space-y-4">
-            {[
-              "Strength conditioning with measurable progress",
-              "Lifestyle fat-loss programs with coaching support",
-              "Premium personal training modules",
-              "Community-led challenge and transformation cycles",
-            ].map((item) => (
-              <article key={item} className="premium-card rounded-2xl p-5">
-                <p className="text-sm text-slate-200">{item}</p>
-              </article>
-            ))}
-          </div>
+        <SectionHeading
+          eyebrow="Programs"
+          title="Premium Programs At A Glance"
+          description="From strength and fat loss to personal training — every path is structured for measurable progress."
+        />
+        <div className="mt-8">
+          <ProgramHighlights items={programHighlights} image={homeProgramImage} />
         </div>
       </section>
 
       <section className="border-y border-white/10 bg-slate-900/60">
         <div className="mx-auto max-w-7xl px-6 py-16">
-          <h2 className="text-3xl font-semibold">Member Journey Snapshot</h2>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {[
-              "Enquire or chat via WhatsApp",
-              "Choose plan and begin onboarding",
-              "Renew online and stay consistent",
-            ].map((item) => (
-              <article key={item} className="premium-card rounded-3xl p-6">
-                <p className="text-sm text-slate-200">{item}</p>
-              </article>
-            ))}
+          <SectionHeading
+            eyebrow="Getting Started"
+            title="Your Member Journey"
+            description="Three simple steps from your first enquiry to long-term consistency."
+          />
+          <div className="mt-8">
+            <JourneyTimeline steps={memberJourneySteps} />
           </div>
         </div>
       </section>
@@ -154,36 +126,35 @@ export default async function Home() {
             </Link>
           </div>
           <div className="mt-8">
-            <PlansGrid plans={plans} />
+            <PlansGrid plans={plans} showBuy />
+          </div>
+          <div className="mt-16">
+            <MembershipComparison
+              plans={plans}
+              showSummaryCards
+              showFeatureMatrix={false}
+              ctaHref="/plans"
+              ctaLabel="View Full Comparison"
+            />
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="glow-pulse rounded-3xl border border-cyan-300/40 bg-cyan-400/10 p-8 text-center">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-900">Quote</p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-            &ldquo;The strongest brands sell confidence before they sell memberships.&rdquo;
-          </h2>
-          <p className="mt-3 text-slate-800">
-            This template is designed to create that confidence in less than 10 seconds.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link
-              href="/plans"
-              className="rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-cyan-300 transition hover:bg-slate-900"
-            >
-              Explore Plans
-            </Link>
-            <Link
-              href="/contact"
-              className="rounded-full border border-slate-700 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-100"
-            >
-              Contact Gym
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CtaSection
+        eyebrow="Ready To Transform"
+        title="Your strongest season starts with one decision."
+        description="Join a premium training environment built for consistency, coaching, and real progress — online signup and renewal made simple."
+        quote="The strongest brands sell confidence before they sell memberships."
+        primaryHref="/plans"
+        primaryLabel="Explore Membership Plans"
+        secondaryHref="/contact"
+        secondaryLabel="Talk To Us"
+        highlights={[
+          { value: "5+", label: "Expert Coaches" },
+          { value: "24/7", label: "Member Portal" },
+          { value: "100%", label: "Online Renewals" },
+        ]}
+      />
     </PageShell>
   );
 }

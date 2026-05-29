@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { formatINR } from "@/lib/membership-utils";
 import { formatDuration, getHighlightedPlanIndex } from "@/lib/plans/plan-display";
+import { PlanBuyButton } from "@/components/plans/plan-buy-button";
 import type { MembershipPlan } from "@/lib/types/database";
 
 type PlansGridProps = {
   plans: MembershipPlan[];
   showCta?: boolean;
+  showBuy?: boolean;
 };
 
-export function PlansGrid({ plans, showCta = false }: PlansGridProps) {
+export function PlansGrid({ plans, showCta = false, showBuy = false }: PlansGridProps) {
   const highlightedIndex = getHighlightedPlanIndex(plans);
 
   return (
@@ -37,12 +39,13 @@ export function PlansGrid({ plans, showCta = false }: PlansGridProps) {
               ))}
             </ul>
           )}
-          {showCta && (
+          {showBuy && <PlanBuyButton planId={plan.id} label="Buy Now" />}
+          {showCta && !showBuy && (
             <Link
-              href="/auth/signup"
+              href="/plans"
               className="mt-6 inline-flex w-full justify-center rounded-full bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
             >
-              Join Now
+              View Plans
             </Link>
           )}
         </article>

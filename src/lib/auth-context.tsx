@@ -10,9 +10,9 @@ interface AuthContextType {
   loading: boolean;
   roleLoading: boolean;
   userRole: string | null;
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | Error | null }>;
+  signUp: (email: string, password: string, nextPath?: string) => Promise<{ error: AuthError | Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | Error | null }>;
-  signInWithGoogle: () => Promise<{ error: AuthError | Error | null }>;
+  signInWithGoogle: (nextPath?: string) => Promise<{ error: AuthError | Error | null }>;
   signOut: () => Promise<{ error: AuthError | Error | null }>;
   resetPassword: (email: string) => Promise<{ error: AuthError | Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: AuthError | Error | null }>;
@@ -98,13 +98,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user, supabase]);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, nextPath = "/dashboard") => {
     try {
+      const safeNext = nextPath.startsWith("/") ? nextPath : "/dashboard";
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${getAppUrl()}/auth/callback`,
+          emailRedirectTo: `${getAppUrl()}/auth/callback?next=${encodeURIComponent(safeNext)}`,
           data: {
             role: "member",
           },
@@ -134,12 +135,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (nextPath = "/dashboard") => {
     try {
+      const safeNext = nextPath.startsWith("/") ? nextPath : "/dashboard";
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getAppUrl()}/auth/callback`,
+          redirectTo: `${getAppUrl()}/auth/callback?next=${encodeURIComponent(safeNext)}`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",

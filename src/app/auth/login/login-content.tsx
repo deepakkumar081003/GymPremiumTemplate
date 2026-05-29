@@ -22,6 +22,10 @@ export default function LoginPage() {
   });
 
   const nextPath = searchParams.get("next") || "/dashboard";
+  const infoMessage = searchParams.get("message");
+  const signupHref = `/auth/signup?next=${encodeURIComponent(nextPath)}${
+    infoMessage ? `&message=${encodeURIComponent(infoMessage)}` : ""
+  }`;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,7 +56,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError(null);
-    const { error: googleError } = await signInWithGoogle();
+    const { error: googleError } = await signInWithGoogle(nextPath);
 
     if (googleError) {
       setError(googleError.message || "Failed to login with Google");
@@ -61,13 +65,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <div className="premium-card rounded-3xl p-8">
+    <div className="premium-card rounded-3xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold">Welcome Back</h1>
             <p className="mt-2 text-slate-300">Login to your {gymConfig.gymName} account</p>
           </div>
+
+          {infoMessage && (
+            <div className="mb-6 p-4 rounded-xl bg-cyan-400/10 border border-cyan-400/40 text-cyan-100 text-sm">
+              {infoMessage}
+            </div>
+          )}
 
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/50 text-red-200 text-sm">
@@ -122,7 +130,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-slate-950 text-slate-400">or</span>
+              <span className="px-2 bg-slate-900 text-slate-400">or</span>
             </div>
           </div>
 
@@ -138,13 +146,11 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-slate-400">
               Don&apos;t have an account?{" "}
-              <Link href="/auth/signup" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+              <Link href={signupHref} className="text-cyan-400 hover:text-cyan-300 font-semibold">
                 Sign up here
               </Link>
             </p>
           </div>
         </div>
-      </div>
-    </div>
   );
 }

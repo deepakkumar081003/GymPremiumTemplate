@@ -3,8 +3,8 @@ import LoginPage from "./login-content";
 
 function LoginFallback() {
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-      <div className="w-12 h-12 rounded-full border-4 border-cyan-400/30 border-t-cyan-400 animate-spin" />
+    <div className="flex justify-center py-24">
+      <div className="h-12 w-12 animate-spin rounded-full border-4 border-cyan-400/30 border-t-cyan-400" />
     </div>
   );
 }

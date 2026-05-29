@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/admin/require-owner";
+import { getExpiryFilterMaxDays } from "@/lib/admin/member-filters";
 import { getActiveMembership, getDaysRemaining } from "@/lib/membership-utils";
 import type { Membership } from "@/lib/types/database";
 
@@ -65,8 +66,14 @@ export async function GET(request: Request) {
     result = result.filter((m) => !m.activeMembership && (membershipByUser.get(m.id)?.length ?? 0) > 0);
   } else if (filter === "none") {
     result = result.filter((m) => (membershipByUser.get(m.id)?.length ?? 0) === 0);
-  } else if (filter === "expiring") {
-    result = result.filter((m) => m.daysRemaining !== null && m.daysRemaining <= 7 && m.daysRemaining > 0);
+  } else {
+    const maxDays = getExpiryFilterMaxDays(filter);
+    if (maxDays !== null) {
+      result = result.filter(
+        (m) =>
+          m.daysRemaining !== null && m.daysRemaining > 0 && m.daysRemaining <= maxDays,
+      );
+    }
   }
 
   return NextResponse.json({ members: result });

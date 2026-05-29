@@ -1,15 +1,28 @@
 import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/admin/require-owner";
+import {
+  buildAnalyticsBuckets,
+  findBucketForDate,
+  getAnalyticsPeriodRange,
+  isDateInRange,
+  parseAnalyticsPeriod,
+} from "@/lib/admin/analytics-period";
+import { getActiveMembership } from "@/lib/membership-utils";
+import type { Membership } from "@/lib/types/database";
 
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await requireOwner();
   if ("error" in auth) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const now = new Date();
-  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const sixMonthsAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
+  const { searchParams } = new URL(request.url);
+  const periodId = parseAnalyticsPeriod(searchParams.get("period"));
+  const range = getAnalyticsPeriodRange(periodId);
+  const buckets = buildAnalyticsBuckets(range);
+
+  const signupCounts = new Map(buckets.map((b) => [b.key, 0]));
+  const revenueAmounts = new Map(buckets.map((b) => [b.key, 0]));
 
   const [membersRes, paymentsRes, membershipsRes] = await Promise.all([
     auth.admin.from("users").select("created_at").eq("role", "member"),
@@ -17,43 +30,75 @@ export async function GET() {
       .from("payments")
       .select("amount, paid_at, status")
       .eq("status", "success")
-      .gte("paid_at", sixMonthsAgo.toISOString()),
-    auth.admin.from("memberships").select("created_at, status"),
+      .gte("paid_at", range.start.toISOString())
+      .lte("paid_at", range.end.toISOString()),
+    auth.admin.from("memberships").select("created_at, end_date, status, user_id"),
   ]);
 
-  const membersByMonth: Record<string, number> = {};
+  let newMembers = 0;
   for (const m of membersRes.data ?? []) {
-    const d = new Date(m.created_at);
-    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-    membersByMonth[key] = (membersByMonth[key] ?? 0) + 1;
+    const created = new Date(m.created_at);
+    if (!isDateInRange(created, range)) continue;
+    newMembers += 1;
+    const bucket = findBucketForDate(buckets, created);
+    if (bucket) signupCounts.set(bucket.key, (signupCounts.get(bucket.key) ?? 0) + 1);
   }
 
-  const revenueByMonth: Record<string, number> = {};
+  let revenue = 0;
+  let paymentCount = 0;
   for (const p of paymentsRes.data ?? []) {
     if (!p.paid_at) continue;
-    const d = new Date(p.paid_at);
-    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-    revenueByMonth[key] = (revenueByMonth[key] ?? 0) + Number(p.amount);
+    const paid = new Date(p.paid_at);
+    if (!isDateInRange(paid, range)) continue;
+    const amount = Number(p.amount);
+    revenue += amount;
+    paymentCount += 1;
+    const bucket = findBucketForDate(buckets, paid);
+    if (bucket) revenueAmounts.set(bucket.key, (revenueAmounts.get(bucket.key) ?? 0) + amount);
   }
 
-  const monthLabels: string[] = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
-    monthLabels.push(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`);
+  let newMemberships = 0;
+  const membershipByUser = new Map<string, Membership[]>();
+  for (const row of membershipsRes.data ?? []) {
+    const created = new Date(row.created_at);
+    if (isDateInRange(created, range)) newMemberships += 1;
+    if (!row.user_id) continue;
+    const list = membershipByUser.get(row.user_id) ?? [];
+    list.push(row as Membership);
+    membershipByUser.set(row.user_id, list);
   }
 
-  const monthlySignups = monthLabels.map((key) => ({ month: key, count: membersByMonth[key] ?? 0 }));
-  const monthlyRevenue = monthLabels.map((key) => ({ month: key, amount: revenueByMonth[key] ?? 0 }));
+  let activeMemberships = 0;
+  for (const list of membershipByUser.values()) {
+    if (getActiveMembership(list)) activeMemberships += 1;
+  }
 
-  const thisMonthRevenue = (paymentsRes.data ?? [])
-    .filter((p) => p.paid_at && new Date(p.paid_at) >= monthStart)
-    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const signupSeries = buckets.map((b) => ({
+    label: b.label,
+    count: signupCounts.get(b.key) ?? 0,
+  }));
+
+  const revenueSeries = buckets.map((b) => ({
+    label: b.label,
+    amount: revenueAmounts.get(b.key) ?? 0,
+  }));
 
   return NextResponse.json({
-    totalMembers: membersRes.data?.length ?? 0,
-    totalMemberships: membershipsRes.data?.length ?? 0,
-    thisMonthRevenue,
-    monthlySignups,
-    monthlyRevenue,
+    period: {
+      id: range.id,
+      label: range.label,
+      start: range.start.toISOString(),
+      end: range.end.toISOString(),
+    },
+    summary: {
+      totalMembers: membersRes.data?.length ?? 0,
+      activeMemberships,
+      newMembers,
+      newMemberships,
+      revenue,
+      paymentCount,
+    },
+    signupSeries,
+    revenueSeries,
   });
 }

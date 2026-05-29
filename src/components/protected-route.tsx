@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { PURCHASE_LOGIN_MESSAGE } from "@/lib/plans/purchase-flow";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,7 +16,15 @@ export function ProtectedRoute({ children, requiredRole = "any" }: ProtectedRout
 
   useEffect(() => {
     if (!loading && !roleLoading && !user) {
-      router.push("/auth/login");
+      const returnPath =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}`
+          : "/dashboard";
+      const params = new URLSearchParams({
+        next: returnPath,
+        message: PURCHASE_LOGIN_MESSAGE,
+      });
+      router.push(`/auth/login?${params.toString()}`);
     } else if (
       !loading &&
       !roleLoading &&

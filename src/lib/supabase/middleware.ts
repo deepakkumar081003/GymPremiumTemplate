@@ -36,8 +36,14 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && isProtected) {
     const redirectUrl = request.nextUrl.clone();
+    const returnPath = `${pathname}${request.nextUrl.search}`;
     redirectUrl.pathname = "/auth/login";
-    redirectUrl.searchParams.set("next", pathname);
+    redirectUrl.search = "";
+    redirectUrl.searchParams.set("next", returnPath);
+    redirectUrl.searchParams.set(
+      "message",
+      "Please log in to buy a plan and join the gym.",
+    );
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -45,7 +51,9 @@ export async function updateSession(request: NextRequest) {
 
   if (user && authPagesWhenLoggedIn.includes(pathname)) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
+    const next = request.nextUrl.searchParams.get("next");
+    redirectUrl.pathname =
+      next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

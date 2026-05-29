@@ -1,9 +1,26 @@
-import Image from "next/image";
 import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
 import { PlansGrid } from "@/components/plans/plans-grid";
+import { MembershipComparison } from "@/components/plans/membership-comparison";
+import { CtaSection } from "@/components/cta-section";
+import { FeatureIconGrid } from "@/components/marketing/feature-icon-grid";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { VisualShowcaseGrid } from "@/components/marketing/visual-showcase-grid";
 import { getPublicPlans } from "@/lib/plans/fetch-public-plans";
-import { placeholderImages } from "@/config/site-content";
+import {
+  PURCHASE_LOGIN_MESSAGE,
+  buildAuthUrl,
+} from "@/lib/plans/purchase-flow";
+import { planValueIndicators, planVisualShowcase } from "@/config/site-content";
+
+const purchaseLoginUrl = buildAuthUrl("/auth/login", {
+  next: "/member/renew",
+  message: PURCHASE_LOGIN_MESSAGE,
+});
+const purchaseSignupUrl = buildAuthUrl("/auth/signup", {
+  next: "/member/renew",
+  message: "Create your account to buy a plan and join the gym.",
+});
 
 export const revalidate = 60;
 
@@ -23,78 +40,61 @@ export default async function PlansPage() {
         </blockquote>
 
         <div className="mt-10">
-          <PlansGrid plans={plans} />
+          <PlansGrid plans={plans} showBuy />
         </div>
+        <p className="mt-6 text-sm text-slate-400">
+          Already have an account?{" "}
+          <Link href={purchaseLoginUrl} className="text-cyan-300 hover:underline">
+            Log in to buy
+          </Link>
+          . New here?{" "}
+          <Link href={purchaseSignupUrl} className="text-cyan-300 hover:underline">
+            Create an account
+          </Link>
+          .
+        </p>
       </section>
 
       <section className="border-y border-white/10 bg-slate-900/60">
         <div className="mx-auto max-w-7xl px-6 py-16">
-          <h2 className="text-3xl font-semibold">Membership Comparison</h2>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {[
-              "Best for beginners: Monthly",
-              "Most chosen: Quarterly",
-              "Best long-term value: Yearly",
-            ].map((row) => (
-              <article key={row} className="premium-card rounded-3xl p-6">
-                <p className="text-sm text-slate-200">{row}</p>
-              </article>
-            ))}
-          </div>
+          <MembershipComparison plans={plans} />
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-16">
-        <h2 className="text-3xl font-semibold">Plan Visuals</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          <article className="premium-card overflow-hidden rounded-3xl">
-            <Image
-              src={placeholderImages.hero}
-              alt="Plan campaign visual"
-              width={1600}
-              height={1000}
-              className="h-auto w-full object-cover"
-            />
-          </article>
-          <article className="premium-card overflow-hidden rounded-3xl">
-            <Image
-              src={placeholderImages.secondary}
-              alt="Pricing visual block"
-              width={1400}
-              height={900}
-              className="h-auto w-full object-cover"
-            />
-          </article>
+        <SectionHeading
+          eyebrow="Membership Experience"
+          title="More Than A Price Tag"
+          description="Every plan includes the support, structure, and environment you need to stay on track."
+        />
+        <div className="mt-8">
+          <VisualShowcaseGrid items={planVisualShowcase} />
         </div>
       </section>
 
       <section className="border-y border-white/10 bg-slate-900/60">
         <div className="mx-auto max-w-7xl px-6 py-16">
-          <h2 className="text-3xl font-semibold">Included Value Indicators</h2>
-          <div className="mt-8 grid gap-5 md:grid-cols-4">
-            {["Nutrition guidance", "Progress checks", "Member priority support", "Renewal reminders"].map(
-              (item) => (
-                <article key={item} className="premium-card rounded-3xl p-5">
-                  <p className="text-xl text-cyan-300">●</p>
-                  <p className="mt-2 text-sm text-slate-200">{item}</p>
-                </article>
-              ),
-            )}
+          <SectionHeading
+            eyebrow="Included With Every Plan"
+            title="Value You Can Feel From Day One"
+            description="Membership perks designed to keep you progressing, supported, and never caught off guard."
+          />
+          <div className="mt-8">
+            <FeatureIconGrid items={planValueIndicators} columns={4} variant="compact" />
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-16">
-        <div className="premium-card rounded-3xl p-8 text-center">
-          <h2 className="text-2xl font-semibold">Ready to start?</h2>
-          <p className="mt-2 text-slate-400">Create your account and choose a plan from the member portal.</p>
-          <Link
-            href="/auth/signup"
-            className="mt-6 inline-flex rounded-full bg-cyan-400 px-7 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-          >
-            Get Started
-          </Link>
-        </div>
+        <CtaSection
+          eyebrow="Ready To Start"
+          title="Pick your plan and begin today."
+          description="Choose a plan above, log in, and complete your purchase online. Manage renewals anytime from your member portal."
+          primaryHref={purchaseLoginUrl}
+          primaryLabel="Login To Buy"
+          secondaryHref={purchaseSignupUrl}
+          secondaryLabel="Create Account"
+        />
       </section>
     </PageShell>
   );
