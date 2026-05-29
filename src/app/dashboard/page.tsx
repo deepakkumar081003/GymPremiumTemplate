@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/protected-route";
+import { MemberDashboardSummary } from "@/components/member/member-dashboard-summary";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -107,41 +108,8 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2">
-              <Link
-                href="/member/membership"
-                className="premium-card rounded-3xl p-6 hover:bg-white/10 transition group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-400/20 flex items-center justify-center mb-4 group-hover:bg-cyan-400/30 transition">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold">My Membership</h3>
-                <p className="mt-2 text-sm text-slate-400">View and manage your membership</p>
-              </Link>
-
-              <Link
-                href="/member/renew"
-                className="premium-card rounded-3xl p-6 hover:bg-white/10 transition group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-400/20 flex items-center justify-center mb-4 group-hover:bg-cyan-400/30 transition">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold">Renew Membership</h3>
-                <p className="mt-2 text-sm text-slate-400">Renew or upgrade your plan</p>
-              </Link>
-            </div>
+            <MemberDashboardSummary />
           )}
-
-          {/* Coming Soon Notice */}
-          <div className="mt-12 p-6 rounded-2xl border border-cyan-400/50 bg-cyan-400/5">
-            <p className="text-sm text-cyan-300">
-              💡 More features are coming soon. This is Phase 2 - Authentication. Next phases will bring full dashboard functionality.
-            </p>
-          </div>
         </div>
       </div>
     </ProtectedRoute>
