@@ -1,9 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
-import { gymConfig } from "@/config/gym-config";
+import { PlansGrid } from "@/components/plans/plans-grid";
+import { getPublicPlans } from "@/lib/plans/fetch-public-plans";
 import { placeholderImages } from "@/config/site-content";
 
-export default function PlansPage() {
+export const revalidate = 60;
+
+export default async function PlansPage() {
+  const plans = await getPublicPlans();
+
   return (
     <PageShell>
       <section className="premium-grid-bg mx-auto max-w-7xl px-6 py-16 md:py-24">
@@ -16,27 +22,8 @@ export default function PlansPage() {
           &ldquo;The right plan is the one you can sustain. Consistency beats intensity.&rdquo;
         </blockquote>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-4">
-          {gymConfig.plans.map((plan) => (
-            <article
-              key={plan.name}
-              className={`rounded-3xl border p-6 ${
-                plan.highlighted
-                  ? "glow-pulse border-cyan-300 bg-cyan-400/10"
-                  : "premium-card border-white/10 bg-white/5"
-              }`}
-            >
-              <p className="text-sm text-slate-300">{plan.duration}</p>
-              <h2 className="mt-2 text-xl font-semibold">{plan.name}</h2>
-              <p className="mt-2 text-3xl font-bold text-cyan-300">{plan.price}</p>
-              <p className="mt-3 text-sm text-slate-300">{plan.description}</p>
-              <ul className="mt-4 space-y-2 text-sm text-slate-200">
-                {plan.features.map((feature) => (
-                  <li key={feature}>• {feature}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
+        <div className="mt-10">
+          <PlansGrid plans={plans} />
         </div>
       </section>
 
@@ -94,6 +81,19 @@ export default function PlansPage() {
               ),
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-16">
+        <div className="premium-card rounded-3xl p-8 text-center">
+          <h2 className="text-2xl font-semibold">Ready to start?</h2>
+          <p className="mt-2 text-slate-400">Create your account and choose a plan from the member portal.</p>
+          <Link
+            href="/auth/signup"
+            className="mt-6 inline-flex rounded-full bg-cyan-400 px-7 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+          >
+            Get Started
+          </Link>
         </div>
       </section>
     </PageShell>

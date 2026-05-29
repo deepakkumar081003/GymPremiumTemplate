@@ -1,10 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PageShell } from "@/components/page-shell";
+import { PlansGrid } from "@/components/plans/plans-grid";
 import { gymConfig } from "@/config/gym-config";
+import { getPublicPlans } from "@/lib/plans/fetch-public-plans";
 import { facilityHighlights, placeholderImages, stats } from "@/config/site-content";
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  const plans = await getPublicPlans();
+
   return (
     <PageShell>
       <section className="premium-grid-bg mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
@@ -132,6 +138,23 @@ export default function Home() {
                 <p className="text-sm text-slate-200">{item}</p>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-slate-900/60">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">Memberships</p>
+              <h2 className="mt-2 text-3xl font-semibold">Plans & Pricing</h2>
+            </div>
+            <Link href="/plans" className="text-sm text-cyan-300 hover:underline">
+              View all plans
+            </Link>
+          </div>
+          <div className="mt-8">
+            <PlansGrid plans={plans} />
           </div>
         </div>
       </section>

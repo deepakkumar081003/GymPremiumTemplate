@@ -29,7 +29,8 @@ function AdminMembersContent() {
   const [members, setMembers] = useState<AdminMember[]>([]);
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const [filter, setFilter] = useState(searchParams.get("filter") ?? "all");
   const [showForm, setShowForm] = useState(false);
   const [formEmail, setFormEmail] = useState("");
@@ -39,12 +40,14 @@ function AdminMembersContent() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const loadMembers = useCallback(async () => {
-    const params = new URLSearchParams({ filter, search });
+  const fetchMembers = useCallback(async (currentFilter: string, currentSearch: string) => {
+    setLoading(true);
+    const params = new URLSearchParams({ filter: currentFilter, search: currentSearch });
     const res = await fetch(`/api/admin/members?${params}`);
     const data = await res.json();
     if (res.ok) setMembers(data.members ?? []);
-  }, [filter, search]);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     const initialFilter = searchParams.get("filter");
@@ -52,15 +55,22 @@ function AdminMembersContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      loadMembers(),
-      fetch("/api/admin/plans").then((r) => r.json()),
-    ]).then(([, plansData]) => {
-      setPlans(plansData.plans ?? []);
-      setLoading(false);
-    });
-  }, [loadMembers]);
+    fetch("/api/admin/plans")
+      .then((r) => r.json())
+      .then((data) => setPlans(data.plans ?? []));
+  }, []);
+
+  useEffect(() => {
+    fetchMembers(filter, appliedSearch);
+  }, [filter, appliedSearch, fetchMembers]);
+
+  const handleSearch = () => {
+    setAppliedSearch(searchInput.trim());
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleSearch();
+  };
 
   const handleOfflineOnboard = async (e: FormEvent) => {
     e.preventDefault();
@@ -91,7 +101,7 @@ function AdminMembersContent() {
     setFormEmail("");
     setFormName("");
     setFormPhone("");
-    loadMembers();
+    fetchMembers(filter, appliedSearch);
   };
 
   const sendReminder = async (member: AdminMember) => {
@@ -196,10 +206,18 @@ function AdminMembersContent() {
         <input
           type="search"
           placeholder="Search name, email, phone..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
           className="min-w-[240px] flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-cyan-400/50"
         />
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+        >
+          Search
+        </button>
         {["all", "active", "expiring", "expired", "none"].map((f) => (
           <button
             key={f}

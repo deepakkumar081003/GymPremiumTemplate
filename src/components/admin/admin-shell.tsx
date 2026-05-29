@@ -5,6 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
+function isNavActive(pathname: string, href: string, exact?: boolean): boolean {
+  if (exact) return pathname === href;
+  if (pathname === href) return true;
+  // Avoid matching /admin/members when on /admin/memberships
+  if (href === "/admin/members") {
+    return pathname.startsWith("/admin/members/");
+  }
+  return pathname.startsWith(`${href}/`);
+}
+
 const navItems = [
   { href: "/admin", label: "Overview", exact: true },
   { href: "/admin/members", label: "Members" },
@@ -48,9 +58,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto max-w-7xl overflow-x-auto px-6 pb-3">
           <div className="flex gap-2">
             {navItems.map((item) => {
-              const active = item.exact
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+              const active = isNavActive(pathname, item.href, item.exact);
               return (
                 <Link
                   key={item.href}
